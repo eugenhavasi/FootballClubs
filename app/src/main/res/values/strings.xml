@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">AllAboutApps</string>
+    <string name="errortoast">Failed to load clubs list.</string>
+
+  <!--Strings for List TextView-->
+
+    <string name="name">NAME</string>
+    <string name="value">VALUE</string>
+    <string name="country">COUNTRY</string>
+    <string name="millions">" Millionen"</string>
+
+    <!--Strings for Details TextView-->
+
+    <string name="details_country">details_country</string>
+    <string name="details_valuedescription">Der Club %1$s aus %2$s hat einen Wert von %3$d Millionen Euro.</string>
+    <string name="details_europeantitlesdescription">Der Club %1$s konnte bislang %2$d Siege auf europäischer Ebene erreichen.</string>
+
+</resources>

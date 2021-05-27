@@ -1,0 +1,198 @@
+apply plugin: 'BuildPlugin'
+apply plugin: 'com.android.application'
+apply plugin: 'com.github.jk1.dependency-license-report'
+apply plugin: 'at.allaboutapps.gradle-plugin'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: "androidx.navigation.safeargs.kotlin"
+apply plugin: "kotlin-parcelize"
+
+
+
+android {
+    signingConfigs {
+        aaaDebugKey {
+        }
+    }
+    defaultConfig {
+        applicationId "com.footballclubs.app"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
+        vectorDrawables.useSupportLibrary false // only for < API 21
+
+        manifestPlaceholders = [apiKey: "secret"] // use with ${apiKey} in manifest
+
+        resConfigs "de" // todo specify default locale(s)
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        // https://developer.android.com/studio/write/java8-support
+        coreLibraryDesugaringEnabled true
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.aaaDebugKey
+        }
+        debug {
+            aaptOptions {
+                // Speed up debug builds
+                cruncherEnabled = false
+            }
+            // prevent crashlytics from updating its id
+            ext.alwaysUpdateBuildId = false
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    flavorDimensions "environment"
+
+    productFlavors {
+        development {
+            dimension "environment"
+            ext.neverBuildRelease = true
+
+            buildConfigField "String", "SERVER_API_URL", "\"https://public.allaboutapps.at/hiring/\""
+        }
+        staging {
+            dimension "environment"
+            ext.neverBuildRelease = true
+
+            buildConfigField "String", "SERVER_API_URL", "\"https://public.allaboutapps.at/hiring/\""
+        }
+        live {
+            dimension "environment"
+
+            buildConfigField "String", "SERVER_API_URL", "\"https://public.allaboutapps.at/hiring/\""
+        }
+    }
+
+    packagingOptions {
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+        preDexLibraries true
+    }
+
+    sourceSets {
+        // generate oss license html to build folder
+        main.assets.srcDirs += "${project.buildDir}/a3generated"
+    }
+}
+
+import com.github.jk1.license.importer.XmlReportImporter
+
+licenseReport {
+    outputDir = "${project.buildDir}/a3generated/licenses"
+    projects = [project] + project.subprojects
+    configurations = ['liveReleaseRuntimeClasspath']
+    allowedLicensesFile = new File("$projectDir/../oss_licenses/src/main/assets/allowed_licenses.json")
+    excludeGroups = ['at.allaboutapps.*']
+    excludes = [
+
+    ]
+    importers = [
+            // Add excluded licenses back
+            new XmlReportImporter("More",
+                    new File("$projectDir/../oss_licenses/src/main/assets/more_licenses.xml"))
+    ]
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+    implementation project(':networking')
+    implementation project(':unwrapretrofit')
+    implementation project(':oss_licenses')
+    implementation project(':glide')
+
+    implementation Dependencies.KotlinStdLib
+    implementation Dependencies.MaterialComponents
+
+    // Firebase Libs
+    
+    
+
+    
+
+    // ViewBinding helper
+    implementation Dependencies.ViewBindingDelegate
+
+    // aaa libs
+    implementation Dependencies.A3Utilities
+    implementation Dependencies.A3RecyclerViewDecorations
+
+    // Android Kotlin Extensions by Google
+    // https://developer.android.com/kotlin/ktx
+    implementation Dependencies.AndroidXCoreKtx
+    implementation Dependencies.AndroidXPreferenceManager
+
+    // Support library depends on this lightweight import
+    implementation Dependencies.AndroidXLifecycleViewModel
+    implementation Dependencies.AndroidXLifecycleLiveData
+
+    kapt Dependencies.AndroidXLifecycleCompiler
+
+    // optional - ReactiveStreams support for LiveData
+    implementation Dependencies.AndroidXLifecycleReactiveStreams
+
+
+    // logging
+    implementation Dependencies.Timber
+
+    implementation Dependencies.RxJava3
+    implementation Dependencies.RxKotlin3
+
+    // networking
+    implementation Dependencies.RetrofitAdapterRxJava3
+    implementation Dependencies.RetrofitConverterMoshi
+
+    implementation Dependencies.OkHttpLoggingInterceptor
+    implementation Dependencies.Moshi
+    implementation Dependencies.MoshiAdapters
+
+    // dependency injection
+    implementation Dependencies.Dagger
+    implementation Dependencies.DaggerAndroid
+    implementation Dependencies.DaggerAndroidSupport
+    kapt Dependencies.DaggerCompiler
+    kapt Dependencies.DaggerCompilerAndroid
+
+    // Leak Canary
+    // debugImplementation because LeakCanary should only run in debug builds.
+    debugImplementation Dependencies.LeakCanary
+
+    implementation Dependencies.AndroidXNavigationFragment
+    implementation Dependencies.AndroidXNavigationUI
+
+
+    // picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // recycler and cardview
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+
+    // toolbar
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+}
+
+
